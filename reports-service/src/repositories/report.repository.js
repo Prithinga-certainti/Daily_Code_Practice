@@ -40,3 +40,23 @@ const getSalesReport = async ({ from, to, restaurantId }) => {
   return rows;
 };
 };
+const getDeliveryReport = async ({ from, to, driverId }) => {
+  let query = `
+    SELECT d.id AS driver_id, d.name AS driver_name,
+           COUNT(o.id) AS total_deliveries,
+           AVG(EXTRACT(EPOCH FROM (o.delivered_at - o.picked_up_at)) / 60) AS avg_delivery_minutes,
+           SUM(CASE WHEN o.status = 'completed' THEN 1 ELSE 0 END) AS successful,
+           SUM(CASE WHEN o.status = 'cancelled' THEN 1 ELSE 0 END) AS cancelled
+    FROM orders o
+    JOIN drivers d ON o.driver_id = d.id
+    WHERE o.created_at BETWEEN $1 AND $2
+  `;
+  const params = [from, to];
+  if (driverId) {
+    params.push(driverId);
+    query += ` AND d.id = $${params.length}`;
+  }
+  query += ' GROUP BY d.id, d.name ORDER BY total_deliveries DESC';
+  const { rows } = await pool.query(query, params);
+  return rows;
+};
