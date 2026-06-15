@@ -65,4 +65,38 @@ const validateRow=(row,rowIndex)=>{
             sanitized_calories=calories;
         }
     }
+    //image url
+    sanitized_image_url=row.image_url?String(row.image_url).trim():null;
+    //allergens
+    sanitized_allergens=row.allergens?String(row.allergens).trim():null;
+    //packing charge
+    if(row.packing_charge && row.packing_charge.trim() !== ''){
+    const charge = parseFloat(row.packing_charge);
+    if(isNaN(charge) || charge < 0){
+        errors.push('packing_charge must be a positive number');
+    }else{
+        sanitized_packing_charge=charge;
+    }
 }
+    //display order
+    if(row.display_order && row.display_order.trim() !== ''){
+        const displayOrder = parseInt(row.display_order,10);
+        if(isNaN(displayOrder) || displayOrder < 0){
+            errors.push('display_order must be a positive integer');
+        }else{
+            sanitized_display_order=displayOrder;
+        }
+    }
+    // boolean fields
+    sanitized.is_featured = row.is_featured === 'true' || row.is_featured === true;
+    sanitized.is_bestseller = row.is_bestseller === 'true' || row.is_bestseller === true;
+    sanitized.is_customizable = row.is_customizable === 'true' || row.is_customizable === true;
+    // available from to to
+    sanitized.available_from = row.available_from ? new Date(row.available_from) : null;
+    sanitized.available_to = row.available_to ? new Date(row.available_to) : null;
+    if (errors.length > 0) {
+    return { isValid: false, error: errors.join(', '), sanitized: null };
+  }
+  return { isValid: true, error: null, sanitized };
+};
+module.exports={validateRow};
