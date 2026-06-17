@@ -1,0 +1,12 @@
+const express=require('express');
+const multer=require('multer');
+const fs=require('fs');
+const path=require('path');
+const csv=require('csv-parse/sync');
+const jwt=require('jsonwebtoken');
+const { v4: uuidv4 }=require('uuid');
+const app=express();
+const PORT=process.env.PORT || 3000;
+const jwtsecret=process;
+const uploaddir=path.join(__dirname,'uploads');
+const {v4:uuidv4}=require('uuid');
